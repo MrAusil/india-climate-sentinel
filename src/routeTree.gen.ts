@@ -9,8 +9,80 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WarningsRouteImport } from './routes/warnings'
+import { Route as TechnologyRouteImport } from './routes/technology'
+import { Route as SimulationRouteImport } from './routes/simulation'
+import { Route as SatelliteRouteImport } from './routes/satellite'
+import { Route as ResilienceRouteImport } from './routes/resilience'
+import { Route as ReportsRouteImport } from './routes/reports'
+import { Route as PredictionsRouteImport } from './routes/predictions'
+import { Route as HackathonRouteImport } from './routes/hackathon'
+import { Route as DigitalTwinRouteImport } from './routes/digital-twin'
+import { Route as CopilotRouteImport } from './routes/copilot'
+import { Route as CommandCenterRouteImport } from './routes/command-center'
+import { Route as CitizenImpactRouteImport } from './routes/citizen-impact'
 import { Route as IndexRouteImport } from './routes/index'
 
+const WarningsRoute = WarningsRouteImport.update({
+  id: '/warnings',
+  path: '/warnings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TechnologyRoute = TechnologyRouteImport.update({
+  id: '/technology',
+  path: '/technology',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SimulationRoute = SimulationRouteImport.update({
+  id: '/simulation',
+  path: '/simulation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SatelliteRoute = SatelliteRouteImport.update({
+  id: '/satellite',
+  path: '/satellite',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResilienceRoute = ResilienceRouteImport.update({
+  id: '/resilience',
+  path: '/resilience',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReportsRoute = ReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PredictionsRoute = PredictionsRouteImport.update({
+  id: '/predictions',
+  path: '/predictions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HackathonRoute = HackathonRouteImport.update({
+  id: '/hackathon',
+  path: '/hackathon',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DigitalTwinRoute = DigitalTwinRouteImport.update({
+  id: '/digital-twin',
+  path: '/digital-twin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CopilotRoute = CopilotRouteImport.update({
+  id: '/copilot',
+  path: '/copilot',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommandCenterRoute = CommandCenterRouteImport.update({
+  id: '/command-center',
+  path: '/command-center',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CitizenImpactRoute = CitizenImpactRouteImport.update({
+  id: '/citizen-impact',
+  path: '/citizen-impact',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +91,200 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/citizen-impact': typeof CitizenImpactRoute
+  '/command-center': typeof CommandCenterRoute
+  '/copilot': typeof CopilotRoute
+  '/digital-twin': typeof DigitalTwinRoute
+  '/hackathon': typeof HackathonRoute
+  '/predictions': typeof PredictionsRoute
+  '/reports': typeof ReportsRoute
+  '/resilience': typeof ResilienceRoute
+  '/satellite': typeof SatelliteRoute
+  '/simulation': typeof SimulationRoute
+  '/technology': typeof TechnologyRoute
+  '/warnings': typeof WarningsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/citizen-impact': typeof CitizenImpactRoute
+  '/command-center': typeof CommandCenterRoute
+  '/copilot': typeof CopilotRoute
+  '/digital-twin': typeof DigitalTwinRoute
+  '/hackathon': typeof HackathonRoute
+  '/predictions': typeof PredictionsRoute
+  '/reports': typeof ReportsRoute
+  '/resilience': typeof ResilienceRoute
+  '/satellite': typeof SatelliteRoute
+  '/simulation': typeof SimulationRoute
+  '/technology': typeof TechnologyRoute
+  '/warnings': typeof WarningsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/citizen-impact': typeof CitizenImpactRoute
+  '/command-center': typeof CommandCenterRoute
+  '/copilot': typeof CopilotRoute
+  '/digital-twin': typeof DigitalTwinRoute
+  '/hackathon': typeof HackathonRoute
+  '/predictions': typeof PredictionsRoute
+  '/reports': typeof ReportsRoute
+  '/resilience': typeof ResilienceRoute
+  '/satellite': typeof SatelliteRoute
+  '/simulation': typeof SimulationRoute
+  '/technology': typeof TechnologyRoute
+  '/warnings': typeof WarningsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/citizen-impact'
+    | '/command-center'
+    | '/copilot'
+    | '/digital-twin'
+    | '/hackathon'
+    | '/predictions'
+    | '/reports'
+    | '/resilience'
+    | '/satellite'
+    | '/simulation'
+    | '/technology'
+    | '/warnings'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/citizen-impact'
+    | '/command-center'
+    | '/copilot'
+    | '/digital-twin'
+    | '/hackathon'
+    | '/predictions'
+    | '/reports'
+    | '/resilience'
+    | '/satellite'
+    | '/simulation'
+    | '/technology'
+    | '/warnings'
+  id:
+    | '__root__'
+    | '/'
+    | '/citizen-impact'
+    | '/command-center'
+    | '/copilot'
+    | '/digital-twin'
+    | '/hackathon'
+    | '/predictions'
+    | '/reports'
+    | '/resilience'
+    | '/satellite'
+    | '/simulation'
+    | '/technology'
+    | '/warnings'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CitizenImpactRoute: typeof CitizenImpactRoute
+  CommandCenterRoute: typeof CommandCenterRoute
+  CopilotRoute: typeof CopilotRoute
+  DigitalTwinRoute: typeof DigitalTwinRoute
+  HackathonRoute: typeof HackathonRoute
+  PredictionsRoute: typeof PredictionsRoute
+  ReportsRoute: typeof ReportsRoute
+  ResilienceRoute: typeof ResilienceRoute
+  SatelliteRoute: typeof SatelliteRoute
+  SimulationRoute: typeof SimulationRoute
+  TechnologyRoute: typeof TechnologyRoute
+  WarningsRoute: typeof WarningsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/warnings': {
+      id: '/warnings'
+      path: '/warnings'
+      fullPath: '/warnings'
+      preLoaderRoute: typeof WarningsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/technology': {
+      id: '/technology'
+      path: '/technology'
+      fullPath: '/technology'
+      preLoaderRoute: typeof TechnologyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/simulation': {
+      id: '/simulation'
+      path: '/simulation'
+      fullPath: '/simulation'
+      preLoaderRoute: typeof SimulationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/satellite': {
+      id: '/satellite'
+      path: '/satellite'
+      fullPath: '/satellite'
+      preLoaderRoute: typeof SatelliteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/resilience': {
+      id: '/resilience'
+      path: '/resilience'
+      fullPath: '/resilience'
+      preLoaderRoute: typeof ResilienceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reports': {
+      id: '/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof ReportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/predictions': {
+      id: '/predictions'
+      path: '/predictions'
+      fullPath: '/predictions'
+      preLoaderRoute: typeof PredictionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hackathon': {
+      id: '/hackathon'
+      path: '/hackathon'
+      fullPath: '/hackathon'
+      preLoaderRoute: typeof HackathonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/digital-twin': {
+      id: '/digital-twin'
+      path: '/digital-twin'
+      fullPath: '/digital-twin'
+      preLoaderRoute: typeof DigitalTwinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/copilot': {
+      id: '/copilot'
+      path: '/copilot'
+      fullPath: '/copilot'
+      preLoaderRoute: typeof CopilotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/command-center': {
+      id: '/command-center'
+      path: '/command-center'
+      fullPath: '/command-center'
+      preLoaderRoute: typeof CommandCenterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/citizen-impact': {
+      id: '/citizen-impact'
+      path: '/citizen-impact'
+      fullPath: '/citizen-impact'
+      preLoaderRoute: typeof CitizenImpactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,6 +297,18 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CitizenImpactRoute: CitizenImpactRoute,
+  CommandCenterRoute: CommandCenterRoute,
+  CopilotRoute: CopilotRoute,
+  DigitalTwinRoute: DigitalTwinRoute,
+  HackathonRoute: HackathonRoute,
+  PredictionsRoute: PredictionsRoute,
+  ReportsRoute: ReportsRoute,
+  ResilienceRoute: ResilienceRoute,
+  SatelliteRoute: SatelliteRoute,
+  SimulationRoute: SimulationRoute,
+  TechnologyRoute: TechnologyRoute,
+  WarningsRoute: WarningsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
