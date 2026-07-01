@@ -86,27 +86,48 @@ export function AppShell({ children }: { children: ReactNode }) {
 }
 
 function TopBar() {
+  const [dark, setDark] = useState(false);
+  useEffect(() => {
+    const saved = typeof window !== "undefined" && localStorage.getItem("bct-theme");
+    const initial = saved ? saved === "dark" : false;
+    setDark(initial);
+    document.documentElement.classList.toggle("dark", initial);
+  }, []);
+  const toggle = () => {
+    const next = !dark;
+    setDark(next);
+    document.documentElement.classList.toggle("dark", next);
+    try { localStorage.setItem("bct-theme", next ? "dark" : "light"); } catch {}
+  };
   const time = new Date().toUTCString().replace("GMT", "IST");
   return (
-    <div className="border-b border-border bg-background/70 backdrop-blur-md sticky top-0 z-30">
-      <div className="flex items-center gap-4 px-4 lg:px-6 h-12 text-xs font-mono">
+    <div className="border-b border-border bg-card sticky top-0 z-30">
+      <div className="flex items-center gap-4 px-4 lg:px-6 h-11 text-xs font-mono">
         <div className="flex items-center gap-1.5 text-isro-green">
           <span className="h-1.5 w-1.5 rounded-full bg-isro-green pulse-dot" /> LIVE
         </div>
         <span className="text-muted-foreground">{time}</span>
-        <span className="text-muted-foreground hidden md:inline">· INSAT-3DR · OK</span>
-        <span className="text-muted-foreground hidden md:inline">· EOS-08 · OK</span>
-        <span className="text-muted-foreground hidden md:inline">· RISAT-2BR1 · NOMINAL</span>
+        <span className="text-muted-foreground hidden md:inline">· INSAT-3DR · Nominal</span>
+        <span className="text-muted-foreground hidden lg:inline">· EOS-08 · Nominal</span>
+        <span className="text-muted-foreground hidden lg:inline">· RISAT-2BR1 · Nominal</span>
         <div className="ml-auto flex items-center gap-3">
-          <span className="hidden md:inline text-muted-foreground">CLEARANCE</span>
-          <span className="px-2 py-0.5 rounded-sm border border-isro-saffron/50 text-isro-saffron">L3 · CONFIDENTIAL</span>
-          <span className="hidden md:inline text-muted-foreground">OPERATOR · A.UPADHYAY</span>
+          <span className="hidden md:inline px-2 py-0.5 rounded-sm border border-border text-muted-foreground">
+            BAH ISRO Hackathon 2026 · PS-05
+          </span>
+          <button
+            onClick={toggle}
+            aria-label="Toggle theme"
+            className="p-1.5 rounded-sm border border-border hover:bg-accent"
+          >
+            {dark ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
+          </button>
         </div>
       </div>
       <Ticker />
     </div>
   );
 }
+
 
 function Ticker() {
   const items = [
