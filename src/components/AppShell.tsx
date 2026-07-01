@@ -29,16 +29,18 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-screen">
-      <aside className="hidden lg:flex w-64 flex-col border-r border-border bg-sidebar/80 backdrop-blur-md sticky top-0 h-screen">
+      <aside className="hidden lg:flex w-64 flex-col border-r border-border bg-sidebar sticky top-0 h-screen">
         <div className="p-4 border-b border-border">
-          <Link to="/" className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2.5">
             <Logo className="h-9 w-9" />
             <div className="leading-tight">
-              <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground font-mono">Govt. of India · ISRO</div>
+              <div className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground font-mono">Govt. of India · ISRO</div>
               <div className="text-sm font-semibold tracking-tight">Bharat Climate Twin</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">National Climate Intelligence Platform</div>
             </div>
           </Link>
         </div>
+
         <nav className="flex-1 overflow-y-auto p-3 space-y-4">
           {groups.map((g) => (
             <div key={g}>
