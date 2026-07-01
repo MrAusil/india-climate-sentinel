@@ -114,21 +114,22 @@ function DigitalTwin() {
         </Panel>
 
         <Panel className="col-span-12 lg:col-span-9" eyebrow={`SCENE · ${mode.toUpperCase()} · ${TIMES[t]}`} title={`${district}, ${stateName}`} padded={false} right={
-          <span className="text-[10px] font-mono text-isro-cyan">PROJ · EPSG:4326</span>
+          <span className="text-[10px] font-mono text-muted-foreground">PROJ · EPSG:4326</span>
         }>
-          <div className="relative aspect-[16/10] bg-background/40 grid-bg">
-            <IndiaMap activeLayers={riskLayers} showCities />
-            <div className="absolute left-3 top-3 panel px-3 py-2 text-[11px] font-mono space-y-1">
-              <div className="text-muted-foreground">SCENE TIME</div>
-              <div className="text-isro-cyan text-lg">{TIMES[t]}</div>
-              <div className="text-muted-foreground">{mode}</div>
-            </div>
-            <div className="absolute right-3 top-3 panel px-3 py-2 text-[11px] font-mono space-y-1">
-              <div className="text-muted-foreground">ACTIVE LAYERS</div>
-              <div className="text-foreground">{active.size}</div>
-            </div>
-            <div className="sweep-bar" />
+          <div className="flex items-center gap-2 px-3 py-2 border-b border-panel-border text-[11px] font-mono">
+            <span className="uppercase tracking-wider text-muted-foreground">Basemap</span>
+            {(["admin","satellite","terrain","osm"] as const).map((b) => (
+              <button key={b} onClick={() => setBaseLayer(b)} className={`px-2 py-0.5 rounded-sm border ${baseLayer===b?"border-primary bg-primary text-primary-foreground":"border-border text-muted-foreground hover:text-foreground"}`}>{b}</button>
+            ))}
+            <span className="ml-auto text-muted-foreground">Coords · 22.5°N 80.5°E</span>
           </div>
+          <div className="relative" style={{ height: "58vh", minHeight: 480 }}>
+            <IndiaMap baseLayer={baseLayer} activeLayers={riskLayers} showCities onDistrictSelect={(n)=>setStateName(n)} />
+            <div className="absolute left-2 bottom-2 z-[500] panel px-2.5 py-1.5 text-[10px] font-mono">
+              <span className="text-muted-foreground">Scene</span> {TIMES[t]} · {mode} · <span className="text-muted-foreground">Layers</span> {active.size}
+            </div>
+          </div>
+
           <div className="p-4 border-t border-panel-border">
             <div className="flex items-center justify-between mb-2 text-[11px] font-mono text-muted-foreground">
               <span>TIME HORIZON</span>
