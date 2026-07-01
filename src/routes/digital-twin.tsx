@@ -46,6 +46,8 @@ function DigitalTwin() {
   const [district, setDistrict] = useState("Mumbai City");
   const [mode, setMode] = useState<typeof MODES[number]>("Current");
   const [t, setT] = useState(1);
+  const [baseLayer, setBaseLayer] = useState<"admin" | "satellite" | "terrain" | "osm">("admin");
+
 
   const toggle = (k: string) =>
     setActive((s) => { const n = new Set(s); n.has(k) ? n.delete(k) : n.add(k); return n; });
