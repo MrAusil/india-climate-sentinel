@@ -1,10 +1,11 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Activity, Satellite, Map as MapIcon, AlertTriangle, Cpu, ShieldCheck,
-  Waves, FlaskConical, Users, Radio, Sparkles, FileText, Network, Trophy,
+  FlaskConical, Users, Radio, Sparkles, FileText, Network, Trophy, Moon, Sun,
 } from "lucide-react";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
+
 
 const NAV = [
   { to: "/", label: "Home", icon: Activity, group: "Overview" },
