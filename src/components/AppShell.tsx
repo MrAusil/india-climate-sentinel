@@ -1,10 +1,11 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Activity, Satellite, Map as MapIcon, AlertTriangle, Cpu, ShieldCheck,
-  Waves, FlaskConical, Users, Radio, Sparkles, FileText, Network, Trophy,
+  FlaskConical, Users, Radio, Sparkles, FileText, Network, Trophy, Moon, Sun,
 } from "lucide-react";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
+
 
 const NAV = [
   { to: "/", label: "Home", icon: Activity, group: "Overview" },
@@ -28,16 +29,18 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-screen">
-      <aside className="hidden lg:flex w-64 flex-col border-r border-border bg-sidebar/80 backdrop-blur-md sticky top-0 h-screen">
+      <aside className="hidden lg:flex w-64 flex-col border-r border-border bg-sidebar sticky top-0 h-screen">
         <div className="p-4 border-b border-border">
-          <Link to="/" className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2.5">
             <Logo className="h-9 w-9" />
             <div className="leading-tight">
-              <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground font-mono">Govt. of India · ISRO</div>
+              <div className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground font-mono">Govt. of India · ISRO</div>
               <div className="text-sm font-semibold tracking-tight">Bharat Climate Twin</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">National Climate Intelligence Platform</div>
             </div>
           </Link>
         </div>
+
         <nav className="flex-1 overflow-y-auto p-3 space-y-4">
           {groups.map((g) => (
             <div key={g}>
@@ -70,10 +73,12 @@ export function AppShell({ children }: { children: ReactNode }) {
         </nav>
         <div className="p-3 border-t border-border text-[10px] font-mono text-muted-foreground space-y-1">
           <div className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-isro-green pulse-dot" /> SYS-LINK · ONLINE</div>
-          <div>NODE · NRSC-HYD-04</div>
-          <div>BUILD 2026.01-RC</div>
+          <div>Node · NRSC-HYD-04</div>
+          <div>Team Nexus Freak · A. Upadhyay</div>
+          <div>Build 2026.01</div>
         </div>
       </aside>
+
 
       <div className="flex-1 min-w-0 flex flex-col">
         <TopBar />
@@ -85,27 +90,48 @@ export function AppShell({ children }: { children: ReactNode }) {
 }
 
 function TopBar() {
+  const [dark, setDark] = useState(false);
+  useEffect(() => {
+    const saved = typeof window !== "undefined" && localStorage.getItem("bct-theme");
+    const initial = saved ? saved === "dark" : false;
+    setDark(initial);
+    document.documentElement.classList.toggle("dark", initial);
+  }, []);
+  const toggle = () => {
+    const next = !dark;
+    setDark(next);
+    document.documentElement.classList.toggle("dark", next);
+    try { localStorage.setItem("bct-theme", next ? "dark" : "light"); } catch {}
+  };
   const time = new Date().toUTCString().replace("GMT", "IST");
   return (
-    <div className="border-b border-border bg-background/70 backdrop-blur-md sticky top-0 z-30">
-      <div className="flex items-center gap-4 px-4 lg:px-6 h-12 text-xs font-mono">
+    <div className="border-b border-border bg-card sticky top-0 z-30">
+      <div className="flex items-center gap-4 px-4 lg:px-6 h-11 text-xs font-mono">
         <div className="flex items-center gap-1.5 text-isro-green">
           <span className="h-1.5 w-1.5 rounded-full bg-isro-green pulse-dot" /> LIVE
         </div>
         <span className="text-muted-foreground">{time}</span>
-        <span className="text-muted-foreground hidden md:inline">· INSAT-3DR · OK</span>
-        <span className="text-muted-foreground hidden md:inline">· EOS-08 · OK</span>
-        <span className="text-muted-foreground hidden md:inline">· RISAT-2BR1 · NOMINAL</span>
+        <span className="text-muted-foreground hidden md:inline">· INSAT-3DR · Nominal</span>
+        <span className="text-muted-foreground hidden lg:inline">· EOS-08 · Nominal</span>
+        <span className="text-muted-foreground hidden lg:inline">· RISAT-2BR1 · Nominal</span>
         <div className="ml-auto flex items-center gap-3">
-          <span className="hidden md:inline text-muted-foreground">CLEARANCE</span>
-          <span className="px-2 py-0.5 rounded-sm border border-isro-saffron/50 text-isro-saffron">L3 · CONFIDENTIAL</span>
-          <span className="hidden md:inline text-muted-foreground">OPERATOR · A.UPADHYAY</span>
+          <span className="hidden md:inline px-2 py-0.5 rounded-sm border border-border text-muted-foreground">
+            BAH ISRO Hackathon 2026 · PS-05
+          </span>
+          <button
+            onClick={toggle}
+            aria-label="Toggle theme"
+            className="p-1.5 rounded-sm border border-border hover:bg-accent"
+          >
+            {dark ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
+          </button>
         </div>
       </div>
       <Ticker />
     </div>
   );
 }
+
 
 function Ticker() {
   const items = [
@@ -141,19 +167,15 @@ function Footer() {
 export function Logo({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 40 40" className={className} aria-hidden>
-      <defs>
-        <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="var(--isro-saffron)" />
-          <stop offset="100%" stopColor="var(--isro-green)" />
-        </linearGradient>
-      </defs>
-      <circle cx="20" cy="20" r="18" fill="none" stroke="url(#lg)" strokeWidth="1.5" />
-      <circle cx="20" cy="20" r="12" fill="none" stroke="var(--isro-cyan)" strokeWidth="1" strokeDasharray="2 2" />
-      <path d="M14 12 L14 28 M14 12 L26 28 M26 12 L26 28" stroke="var(--foreground)" strokeWidth="2" fill="none" />
-      <circle cx="32" cy="10" r="2" fill="var(--isro-saffron)" />
+      <circle cx="20" cy="20" r="18" fill="var(--primary)" />
+      <circle cx="20" cy="20" r="12" fill="none" stroke="#ffffff" strokeWidth="1" opacity="0.6" />
+      <circle cx="20" cy="20" r="6" fill="none" stroke="#ffffff" strokeWidth="1" opacity="0.6" />
+      <path d="M4 20 H36 M20 4 V36" stroke="#ffffff" strokeWidth="0.6" opacity="0.4" />
+      <text x="20" y="24" textAnchor="middle" fill="#ffffff" fontSize="11" fontFamily="Inter, sans-serif" fontWeight="700">BCT</text>
     </svg>
   );
 }
+
 
 export function PageHeader({
   eyebrow, title, description, actions,
