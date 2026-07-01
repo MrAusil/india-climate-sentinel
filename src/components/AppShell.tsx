@@ -73,10 +73,12 @@ export function AppShell({ children }: { children: ReactNode }) {
         </nav>
         <div className="p-3 border-t border-border text-[10px] font-mono text-muted-foreground space-y-1">
           <div className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-isro-green pulse-dot" /> SYS-LINK · ONLINE</div>
-          <div>NODE · NRSC-HYD-04</div>
-          <div>BUILD 2026.01-RC</div>
+          <div>Node · NRSC-HYD-04</div>
+          <div>Team Nexus Freak · A. Upadhyay</div>
+          <div>Build 2026.01</div>
         </div>
       </aside>
+
 
       <div className="flex-1 min-w-0 flex flex-col">
         <TopBar />
