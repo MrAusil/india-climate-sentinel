@@ -167,19 +167,15 @@ function Footer() {
 export function Logo({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 40 40" className={className} aria-hidden>
-      <defs>
-        <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="var(--isro-saffron)" />
-          <stop offset="100%" stopColor="var(--isro-green)" />
-        </linearGradient>
-      </defs>
-      <circle cx="20" cy="20" r="18" fill="none" stroke="url(#lg)" strokeWidth="1.5" />
-      <circle cx="20" cy="20" r="12" fill="none" stroke="var(--isro-cyan)" strokeWidth="1" strokeDasharray="2 2" />
-      <path d="M14 12 L14 28 M14 12 L26 28 M26 12 L26 28" stroke="var(--foreground)" strokeWidth="2" fill="none" />
-      <circle cx="32" cy="10" r="2" fill="var(--isro-saffron)" />
+      <circle cx="20" cy="20" r="18" fill="var(--primary)" />
+      <circle cx="20" cy="20" r="12" fill="none" stroke="#ffffff" strokeWidth="1" opacity="0.6" />
+      <circle cx="20" cy="20" r="6" fill="none" stroke="#ffffff" strokeWidth="1" opacity="0.6" />
+      <path d="M4 20 H36 M20 4 V36" stroke="#ffffff" strokeWidth="0.6" opacity="0.4" />
+      <text x="20" y="24" textAnchor="middle" fill="#ffffff" fontSize="11" fontFamily="Inter, sans-serif" fontWeight="700">BCT</text>
     </svg>
   );
 }
+
 
 export function PageHeader({
   eyebrow, title, description, actions,
