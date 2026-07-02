@@ -219,7 +219,7 @@
 
 /* Remove all "sweep" / glow effects — keep utility as no-op so pages don't break */
 @utility sweep-bar { display: none; }
-@utility glow-cyan { }
+@utility glow-cyan { color: inherit; }
 @utility scan-line { position: relative; }
 
 /* Leaflet — theme-aware controls */
