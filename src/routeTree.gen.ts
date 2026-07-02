@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as WarningsRouteImport } from './routes/warnings'
 import { Route as TechnologyRouteImport } from './routes/technology'
 import { Route as SimulationRouteImport } from './routes/simulation'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SatelliteRouteImport } from './routes/satellite'
 import { Route as ResilienceRouteImport } from './routes/resilience'
 import { Route as ReportsRouteImport } from './routes/reports'
@@ -36,6 +37,11 @@ const TechnologyRoute = TechnologyRouteImport.update({
 const SimulationRoute = SimulationRouteImport.update({
   id: '/simulation',
   path: '/simulation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SatelliteRoute = SatelliteRouteImport.update({
@@ -100,6 +106,7 @@ export interface FileRoutesByFullPath {
   '/reports': typeof ReportsRoute
   '/resilience': typeof ResilienceRoute
   '/satellite': typeof SatelliteRoute
+  '/settings': typeof SettingsRoute
   '/simulation': typeof SimulationRoute
   '/technology': typeof TechnologyRoute
   '/warnings': typeof WarningsRoute
@@ -115,6 +122,7 @@ export interface FileRoutesByTo {
   '/reports': typeof ReportsRoute
   '/resilience': typeof ResilienceRoute
   '/satellite': typeof SatelliteRoute
+  '/settings': typeof SettingsRoute
   '/simulation': typeof SimulationRoute
   '/technology': typeof TechnologyRoute
   '/warnings': typeof WarningsRoute
@@ -131,6 +139,7 @@ export interface FileRoutesById {
   '/reports': typeof ReportsRoute
   '/resilience': typeof ResilienceRoute
   '/satellite': typeof SatelliteRoute
+  '/settings': typeof SettingsRoute
   '/simulation': typeof SimulationRoute
   '/technology': typeof TechnologyRoute
   '/warnings': typeof WarningsRoute
@@ -148,6 +157,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/resilience'
     | '/satellite'
+    | '/settings'
     | '/simulation'
     | '/technology'
     | '/warnings'
@@ -163,6 +173,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/resilience'
     | '/satellite'
+    | '/settings'
     | '/simulation'
     | '/technology'
     | '/warnings'
@@ -178,6 +189,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/resilience'
     | '/satellite'
+    | '/settings'
     | '/simulation'
     | '/technology'
     | '/warnings'
@@ -194,6 +206,7 @@ export interface RootRouteChildren {
   ReportsRoute: typeof ReportsRoute
   ResilienceRoute: typeof ResilienceRoute
   SatelliteRoute: typeof SatelliteRoute
+  SettingsRoute: typeof SettingsRoute
   SimulationRoute: typeof SimulationRoute
   TechnologyRoute: typeof TechnologyRoute
   WarningsRoute: typeof WarningsRoute
@@ -220,6 +233,13 @@ declare module '@tanstack/react-router' {
       path: '/simulation'
       fullPath: '/simulation'
       preLoaderRoute: typeof SimulationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/satellite': {
@@ -306,6 +326,7 @@ const rootRouteChildren: RootRouteChildren = {
   ReportsRoute: ReportsRoute,
   ResilienceRoute: ResilienceRoute,
   SatelliteRoute: SatelliteRoute,
+  SettingsRoute: SettingsRoute,
   SimulationRoute: SimulationRoute,
   TechnologyRoute: TechnologyRoute,
   WarningsRoute: WarningsRoute,
@@ -313,3 +334,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

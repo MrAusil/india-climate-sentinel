@@ -1,256 +1,294 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { IndiaMap } from "@/components/IndiaMap";
-import { Panel, Stat, Sparkline, Bar, RiskBadge } from "@/components/Panel";
-import { useState } from "react";
-import { ArrowRight, Layers, Satellite, Mountain, Map as MapIcon, Radio } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Search, MapPin, AlertTriangle, Users, Droplets, Wind, Thermometer, X, ExternalLink } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Bharat Climate Twin · National Climate Intelligence Platform" },
-      { name: "description", content: "Government-grade AI climate digital twin for India: monitor, predict and respond to hydro-meteorological hazards at district resolution." },
+      { title: "Bharat Climate Twin — National Climate Intelligence" },
+      { name: "description", content: "Map-first climate intelligence and disaster prediction platform for India, built on ISRO Bhuvan, IMD, CWC, and Copernicus data." },
     ],
   }),
   component: Home,
 });
 
-const trendT = [28.1, 28.4, 28.6, 28.9, 29.2, 29.0, 29.5, 29.8, 30.1, 30.3, 30.6, 30.9];
-const trendR = [120, 135, 110, 180, 220, 260, 305, 280, 240, 200, 165, 140];
+type District = {
+  name: string;
+  state: string;
+  population: string;
+  weather: { temp: string; condition: string; wind: string; humidity: string };
+  alerts: Array<{ level: "Red" | "Orange" | "Yellow"; type: string; window: string }>;
+  risk: number;
+  summary: string;
+  actions: string[];
+};
 
-const BASE_LAYERS = [
-  { id: "admin", label: "Administrative", icon: MapIcon },
-  { id: "satellite", label: "Satellite", icon: Satellite },
-  { id: "terrain", label: "Terrain", icon: Mountain },
-  { id: "osm", label: "Street", icon: Layers },
-] as const;
+const SAMPLE_DISTRICTS: District[] = [
+  {
+    name: "Dibrugarh", state: "Assam", population: "1.33 million",
+    weather: { temp: "28°C", condition: "Heavy rain", wind: "18 km/h SW", humidity: "94%" },
+    alerts: [{ level: "Red", type: "Riverine flood", window: "next 72 hours" }],
+    risk: 78,
+    summary: "Brahmaputra is 0.42 m above the danger mark at Dibrugarh gauge. Continued rainfall of 340 mm over 72 hours combined with saturated catchments indicates high probability of flooding across 9 sub-divisions.",
+    actions: [
+      "Evacuate 16 riverside villages (approx. 24,000 residents)",
+      "Coordinate release schedule with upstream Subansiri barrage",
+      "Deploy 4 NDRF mobile medical units to Naharkatia and Tingkhong",
+    ],
+  },
+  {
+    name: "Puri", state: "Odisha", population: "1.70 million",
+    weather: { temp: "31°C", condition: "Overcast, rising winds", wind: "42 km/h E", humidity: "88%" },
+    alerts: [{ level: "Red", type: "Cyclone landfall", window: "next 14 hours" }],
+    risk: 82,
+    summary: "Deep depression over the Bay of Bengal is intensifying. Landfall of a Category-2 cyclone is expected between Puri and Paradip within 14 hours.",
+    actions: [
+      "Evacuate coastal belt within 10 km (approx. 410,000 residents)",
+      "Suspend fishing operations across Puri and Ganjam",
+      "Harvest standing paddy in coastal blocks within 24 hours",
+    ],
+  },
+  {
+    name: "Bikaner", state: "Rajasthan", population: "2.36 million",
+    weather: { temp: "44°C", condition: "Clear, extreme heat", wind: "12 km/h W", humidity: "18%" },
+    alerts: [{ level: "Orange", type: "Heatwave", window: "next 5 days" }],
+    risk: 64,
+    summary: "Persistent upper-air ridge is expected to push maximum temperatures to 46–48 °C for five consecutive days. Heat-related morbidity is projected to rise 1.4× above baseline.",
+    actions: [
+      "Open cooling centres in 14 municipal wards",
+      "Reschedule outdoor labour to before 10:00 and after 17:00",
+      "Pre-position ORS and IV fluids at 22 primary health centres",
+    ],
+  },
+];
 
-const RISK_TOGGLES = [
-  { id: "flood", label: "Flood risk" },
-  { id: "cyclone", label: "Cyclone forecast" },
-  { id: "heatwave", label: "Heatwave" },
-  { id: "drought", label: "Drought" },
-  { id: "landslide", label: "Landslide" },
-  { id: "fire", label: "Forest fire" },
-] as const;
+const ALL_DISTRICTS = [
+  "Dibrugarh, Assam", "Puri, Odisha", "Bikaner, Rajasthan",
+  "South 24 Parganas, West Bengal", "Pauri Garhwal, Uttarakhand",
+  "Wayanad, Kerala", "Beed, Maharashtra", "Chennai, Tamil Nadu",
+  "Guwahati, Assam", "Bhubaneswar, Odisha",
+];
 
 function Home() {
-  const [base, setBase] = useState<(typeof BASE_LAYERS)[number]["id"]>("admin");
-  const [risks, setRisks] = useState<Set<string>>(new Set(["flood", "cyclone", "heatwave"]));
+  const [selected, setSelected] = useState<District | null>(null);
+  const [query, setQuery] = useState("");
+  const [base, setBase] = useState<"admin" | "satellite" | "terrain">("admin");
 
-  const toggle = (id: string) =>
-    setRisks((s) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const suggestions = useMemo(() => {
+    if (!query.trim()) return [];
+    return ALL_DISTRICTS.filter((d) => d.toLowerCase().includes(query.toLowerCase())).slice(0, 6);
+  }, [query]);
+
+  const onSelect = (name: string) => {
+    const d = SAMPLE_DISTRICTS.find((x) => name.toLowerCase().includes(x.name.toLowerCase()));
+    setSelected(d ?? SAMPLE_DISTRICTS[0]);
+  };
 
   return (
-    <div>
-      {/* Header strip */}
-      <section className="border-b border-border bg-card">
-        <div className="px-4 lg:px-8 py-5 flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground font-mono">
-              Ministry of Earth Sciences · ISRO · NDMA · IMD
-            </div>
-            <h1 className="mt-1 text-2xl md:text-3xl font-semibold tracking-tight">
-              National Climate Intelligence Dashboard
-            </h1>
-            <p className="mt-1 text-sm text-muted-foreground max-w-2xl">
-              District-resolution monitoring, forecasting and decision support for
-              hydro-meteorological hazards across India.
-            </p>
+    <div className="flex-1 flex flex-col lg:flex-row min-h-[calc(100vh-56px-40px)]">
+      {/* Left rail — search + status */}
+      <aside className="w-full lg:w-80 shrink-0 border-b lg:border-b-0 lg:border-r border-border bg-card flex flex-col">
+        <div className="p-4 border-b border-border">
+          <label className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground font-mono">Locate</label>
+          <div className="relative mt-1.5">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search district or state"
+              className="w-full pl-8 pr-3 py-2 text-sm rounded-sm border border-border bg-background focus:outline-none focus:border-primary transition-colors"
+            />
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Link to="/digital-twin" className="inline-flex items-center gap-2 px-3.5 py-2 rounded-sm bg-primary text-primary-foreground text-sm font-medium hover:opacity-90">
-              Open Digital Twin <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link to="/command-center" className="inline-flex items-center gap-2 px-3.5 py-2 rounded-sm border border-border text-sm hover:bg-accent">
-              <Radio className="h-4 w-4" /> Command Center
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* National risk summary strip */}
-      <section className="px-4 lg:px-8 pt-6">
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
-          <RiskCard label="Flood risk" pct={72} status="High" trend="+6" tone="high" />
-          <RiskCard label="Cyclone risk" pct={68} status="High" trend="+14" tone="high" />
-          <RiskCard label="Heatwave" pct={54} status="Moderate" trend="−3" tone="mod" />
-          <RiskCard label="Drought" pct={41} status="Moderate" trend="+2" tone="mod" />
-          <RiskCard label="Landslide" pct={36} status="Watch" trend="+1" tone="low" />
-          <RiskCard label="Forest fire" pct={48} status="Moderate" trend="+8" tone="mod" />
-        </div>
-      </section>
-
-      {/* Main GIS map + side rails */}
-      <section className="px-4 lg:px-8 py-6 grid grid-cols-12 gap-4">
-        <div className="col-span-12 xl:col-span-9">
-          <Panel
-            eyebrow="GEOSPATIAL VIEWER"
-            title="India · National Risk Composite"
-            right={<span className="text-[11px] font-mono text-muted-foreground">EPSG:4326 · Refresh 14:32 IST</span>}
-            padded={false}
-          >
-            {/* Toolbar */}
-            <div className="flex flex-wrap items-center gap-3 px-3 py-2 border-b border-panel-border text-xs">
-              <div className="flex items-center gap-1">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mr-1">Basemap</span>
-                {BASE_LAYERS.map((b) => {
-                  const Icon = b.icon;
-                  const on = base === b.id;
-                  return (
-                    <button key={b.id} onClick={() => setBase(b.id)}
-                      className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-sm border text-[11px] ${on ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:text-foreground"}`}>
-                      <Icon className="h-3 w-3" /> {b.label}
-                    </button>
-                  );
-                })}
-              </div>
-              <div className="flex items-center gap-1 ml-auto flex-wrap">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mr-1">Overlays</span>
-                {RISK_TOGGLES.map((r) => {
-                  const on = risks.has(r.id);
-                  return (
-                    <button key={r.id} onClick={() => toggle(r.id)}
-                      className={`px-2 py-1 rounded-sm border text-[11px] ${on ? "border-primary/50 bg-accent text-foreground" : "border-border text-muted-foreground hover:text-foreground"}`}>
-                      {r.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="relative" style={{ height: "62vh", minHeight: 520 }}>
-              <IndiaMap baseLayer={base} activeLayers={Array.from(risks) as any} />
-              <MapLegend />
-            </div>
-          </Panel>
-        </div>
-
-        <div className="col-span-12 xl:col-span-3 space-y-4">
-          <Panel eyebrow="AT A GLANCE" title="Live climate indicators">
-            <div className="space-y-3">
-              <Indicator label="Temperature anomaly" value="+1.4°C" series={trendT} tone="warn" />
-              <Indicator label="Rainfall anomaly" value="−18%" series={trendR} tone="down" />
-              <Indicator label="Cyclone probability (Bay of Bengal)" value="72%" series={[10,12,20,28,40,55,68,72]} tone="warn" />
-              <Indicator label="Population vulnerability index" value="0.61" series={[55,56,58,59,60,61,61,61]} tone="warn" />
-            </div>
-          </Panel>
-
-          <Panel eyebrow="COVERAGE" title="Platform footprint">
-            <div className="grid grid-cols-3 gap-2">
-              <Stat label="Districts" value="766" delta="100%" tone="up" />
-              <Stat label="Satellites" value="14" delta="active" />
-              <Stat label="Models" value="22" delta="in prod" tone="up" />
-            </div>
-          </Panel>
-        </div>
-      </section>
-
-      {/* Alerts table + AI brief */}
-      <section className="px-4 lg:px-8 pb-10 grid grid-cols-12 gap-4">
-        <Panel className="col-span-12 lg:col-span-7" eyebrow="ACTIVE ALERTS" title="National Disaster Feed · last 24h" right={<RiskBadge level="Orange" />}>
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-[11px] font-mono text-muted-foreground border-b border-panel-border">
-                <th className="py-2 font-normal">District / Region</th>
-                <th className="font-normal">Event</th>
-                <th className="font-normal">Severity</th>
-                <th className="font-normal text-right">Expected</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-panel-border/60">
-              {[
-                ["Dibrugarh, Assam", "Brahmaputra +0.42 m above danger", "Red", "T+06h"],
-                ["South 24 Parganas, WB", "Cyclonic formation, Bay of Bengal", "Orange", "T+72h"],
-                ["Marathwada, Maharashtra", "Drought · SPI −1.4 (severe)", "Yellow", "Ongoing"],
-                ["Pauri Garhwal, Uttarakhand", "Forest fire · spread index 0.62", "Orange", "T+18h"],
-                ["Wayanad, Kerala", "Soil saturation · landslide watch", "Yellow", "T+24h"],
-                ["Bikaner, Rajasthan", "Heatwave · 46.8 °C forecast", "Orange", "T+30h"],
-              ].map(([r, e, lvl, eta]) => (
-                <tr key={r as string} className="hover:bg-accent/60">
-                  <td className="py-2.5 font-medium">{r}</td>
-                  <td className="text-muted-foreground">{e}</td>
-                  <td><RiskBadge level={lvl as any} /></td>
-                  <td className="text-right font-mono text-xs text-muted-foreground">{eta}</td>
-                </tr>
+          {suggestions.length > 0 && (
+            <ul className="mt-1.5 border border-border rounded-sm bg-card overflow-hidden">
+              {suggestions.map((s) => (
+                <li key={s}>
+                  <button
+                    onClick={() => { onSelect(s); setQuery(""); }}
+                    className="w-full text-left px-3 py-1.5 text-sm hover:bg-accent flex items-center gap-2"
+                  >
+                    <MapPin className="h-3 w-3 text-muted-foreground" /> {s}
+                  </button>
+                </li>
               ))}
-            </tbody>
-          </table>
-        </Panel>
+            </ul>
+          )}
+        </div>
 
-        <Panel className="col-span-12 lg:col-span-5" eyebrow="ANALYTICAL BRIEF" title="National situation summary" right={<span className="text-[10px] font-mono text-muted-foreground">BHARATCLIMATE-FM v2.4</span>}>
-          <div className="space-y-3 text-sm">
-            <p className="leading-relaxed">
-              A Bay of Bengal low-pressure system is intensifying over the next 72 hours;
-              landfall probability of a category-2 cyclone is <b>72%</b> along the
-              Odisha–West Bengal coastline. Concurrently, Brahmaputra crest exceeds
-              danger levels across 4 districts of Upper Assam. Coordinated pre-positioning
-              of NDRF assets and evacuation of low-lying areas is advised.
-            </p>
-            <div className="grid grid-cols-3 gap-2 pt-1">
-              <Stat label="Recommendations" value="11" delta="3 critical" tone="warn" />
-              <Stat label="Population at risk" value="4.2M" delta="+0.6M / 24h" tone="down" />
-              <Stat label="Ensemble confidence" value="0.86" tone="up" />
+        <div className="p-4 border-b border-border">
+          <div className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground font-mono">National status</div>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-2xl font-semibold">Elevated</span>
+            <span className="text-xs text-muted-foreground">68 / 100</span>
+          </div>
+          <div className="mt-2 h-1 bg-muted rounded-sm overflow-hidden">
+            <div className="h-full bg-risk-high" style={{ width: "68%" }} />
+          </div>
+          <p className="mt-3 text-xs text-muted-foreground leading-relaxed">
+            Composite index across flood, cyclone, heatwave, drought, landslide and forest-fire risks. Updated every 15 minutes.
+          </p>
+        </div>
+
+        <div className="p-4 flex-1 overflow-y-auto">
+          <div className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground font-mono mb-2">Active alerts</div>
+          <ul className="space-y-2">
+            {SAMPLE_DISTRICTS.map((d) => (
+              <li key={d.name}>
+                <button
+                  onClick={() => setSelected(d)}
+                  className={cn(
+                    "w-full text-left p-3 rounded-sm border transition-colors",
+                    selected?.name === d.name
+                      ? "border-primary bg-accent"
+                      : "border-border hover:bg-accent/60",
+                  )}
+                >
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={cn(
+                        "h-2 w-2 rounded-full",
+                        d.alerts[0].level === "Red" && "bg-risk-severe",
+                        d.alerts[0].level === "Orange" && "bg-risk-high",
+                        d.alerts[0].level === "Yellow" && "bg-risk-moderate",
+                      )}
+                    />
+                    <span className="text-sm font-medium">{d.name}</span>
+                    <span className="text-xs text-muted-foreground">· {d.state}</span>
+                  </div>
+                  <div className="mt-1 text-xs text-muted-foreground">{d.alerts[0].type} · {d.alerts[0].window}</div>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="p-3 border-t border-border text-[10px] font-mono text-muted-foreground">
+          Sources: IMD · CWC · ISRO Bhuvan · Copernicus
+        </div>
+      </aside>
+
+      {/* Map */}
+      <div className="relative flex-1 min-h-[60vh]">
+        <IndiaMap baseLayer={base} onDistrictSelect={onSelect} />
+
+        {/* Basemap switcher */}
+        <div className="absolute top-3 right-3 z-[500] panel flex text-xs overflow-hidden">
+          {(["admin", "satellite", "terrain"] as const).map((b) => (
+            <button
+              key={b}
+              onClick={() => setBase(b)}
+              className={cn(
+                "px-3 py-1.5 capitalize border-r border-border last:border-r-0",
+                base === b ? "bg-primary text-primary-foreground" : "hover:bg-accent",
+              )}
+            >
+              {b}
+            </button>
+          ))}
+        </div>
+
+        {/* Attribution card */}
+        <div className="absolute bottom-3 left-3 z-[500] panel px-3 py-1.5 text-[10px] font-mono text-muted-foreground">
+          EPSG:4326 · Boundaries © OSM · Imagery © Esri / Maxar
+        </div>
+      </div>
+
+      {/* Right rail — district detail */}
+      {selected && (
+        <aside className="w-full lg:w-96 shrink-0 border-t lg:border-t-0 lg:border-l border-border bg-card overflow-y-auto">
+          <div className="p-4 border-b border-border flex items-start gap-2">
+            <div className="min-w-0">
+              <div className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground font-mono">District</div>
+              <div className="text-lg font-semibold">{selected.name}</div>
+              <div className="text-xs text-muted-foreground">{selected.state} · Population {selected.population}</div>
             </div>
-            <Bar label="National Climate Risk Status" right="ELEVATED · 68 / 100" value={68} color="var(--risk-high)" />
+            <button onClick={() => setSelected(null)} className="ml-auto p-1 rounded-sm hover:bg-accent" aria-label="Close">
+              <X className="h-4 w-4" />
+            </button>
           </div>
-        </Panel>
-      </section>
-    </div>
-  );
-}
 
-function RiskCard({ label, pct, status, trend, tone }: { label: string; pct: number; status: string; trend: string; tone: "low" | "mod" | "high" }) {
-  const color = tone === "high" ? "var(--risk-high)" : tone === "mod" ? "var(--risk-moderate)" : "var(--risk-low)";
-  const trendUp = trend.trim().startsWith("+");
-  return (
-    <div className="panel p-3">
-      <div className="flex items-center justify-between">
-        <div className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground font-mono">{label}</div>
-        <span className={`text-[10px] font-mono ${trendUp ? "text-risk-severe" : "text-isro-green"}`}>{trend}</span>
-      </div>
-      <div className="mt-1.5 flex items-baseline gap-2">
-        <div className="text-2xl font-semibold tracking-tight">{pct}%</div>
-        <div className="text-[11px] font-mono uppercase" style={{ color }}>{status}</div>
-      </div>
-      <div className="mt-2 h-1 w-full rounded-sm bg-muted overflow-hidden">
-        <div className="h-full" style={{ width: `${pct}%`, background: color }} />
-      </div>
-    </div>
-  );
-}
-
-function MapLegend() {
-  const items: Array<[string, string]> = [
-    ["Flood", "var(--isro-cyan)"],
-    ["Cyclone", "#7c3aed"],
-    ["Heatwave", "var(--risk-high)"],
-    ["Drought", "var(--isro-saffron)"],
-    ["Landslide", "#a16207"],
-    ["Fire", "var(--risk-severe)"],
-  ];
-  return (
-    <div className="absolute bottom-2 right-2 z-[500] panel px-3 py-2 text-[11px] font-mono space-y-1 shadow-sm">
-      <div className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Legend · Hazard overlays</div>
-      <div className="grid grid-cols-2 gap-x-3 gap-y-1">
-        {items.map(([l, c]) => (
-          <div key={l} className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full" style={{ background: c }} /> {l}
+          <div className="p-4 border-b border-border">
+            <div className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground font-mono mb-2">Current conditions</div>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <Row icon={Thermometer} label="Temperature" value={selected.weather.temp} />
+              <Row icon={Droplets} label="Humidity" value={selected.weather.humidity} />
+              <Row icon={Wind} label="Wind" value={selected.weather.wind} />
+              <Row icon={MapPin} label="Sky" value={selected.weather.condition} />
+            </div>
+            <div className="mt-2 text-[10px] font-mono text-muted-foreground">Source: IMD AWS · Updated 14:32 IST</div>
           </div>
-        ))}
-      </div>
+
+          <div className="p-4 border-b border-border">
+            <div className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground font-mono mb-2">Active alerts</div>
+            {selected.alerts.map((a) => (
+              <div key={a.type} className="flex items-start gap-2 p-3 rounded-sm border border-border">
+                <AlertTriangle
+                  className={cn(
+                    "h-4 w-4 mt-0.5",
+                    a.level === "Red" && "text-risk-severe",
+                    a.level === "Orange" && "text-risk-high",
+                    a.level === "Yellow" && "text-risk-moderate",
+                  )}
+                />
+                <div>
+                  <div className="text-sm font-medium">{a.type}</div>
+                  <div className="text-xs text-muted-foreground">Expected within {a.window}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="p-4 border-b border-border">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground font-mono">Risk score</span>
+              <span className="text-[11px] font-mono text-muted-foreground">Confidence 0.86</span>
+            </div>
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-semibold">{selected.risk}</span>
+              <span className="text-sm text-muted-foreground">/ 100</span>
+            </div>
+            <div className="mt-2 h-1 bg-muted rounded-sm overflow-hidden">
+              <div className="h-full bg-risk-high" style={{ width: `${selected.risk}%` }} />
+            </div>
+            <p className="mt-3 text-sm leading-relaxed text-foreground">{selected.summary}</p>
+            <div className="mt-2 flex items-center gap-1.5 text-[10px] font-mono text-muted-foreground">
+              <Users className="h-3 w-3" /> Population exposure informed by WorldPop 2024
+            </div>
+          </div>
+
+          <div className="p-4">
+            <div className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground font-mono mb-2">Recommended actions</div>
+            <ol className="space-y-2">
+              {selected.actions.map((a, i) => (
+                <li key={a} className="flex gap-3 text-sm">
+                  <span className="shrink-0 mt-0.5 h-5 w-5 rounded-sm bg-accent text-foreground text-xs font-mono flex items-center justify-center">{i + 1}</span>
+                  <span className="leading-relaxed">{a}</span>
+                </li>
+              ))}
+            </ol>
+            <a
+              href="#methodology"
+              className="mt-4 inline-flex items-center gap-1.5 text-xs text-primary hover:underline"
+            >
+              View methodology and model version <ExternalLink className="h-3 w-3" />
+            </a>
+          </div>
+        </aside>
+      )}
     </div>
   );
 }
 
-function Indicator({ label, value, series, tone }: { label: string; value: string; series: number[]; tone: "up" | "down" | "warn" }) {
-  const color = tone === "down" ? "var(--risk-severe)" : tone === "warn" ? "var(--risk-high)" : "var(--isro-green)";
+function Row({ icon: Icon, label, value }: { icon: any; label: string; value: string }) {
   return (
-    <div>
-      <div className="flex items-center justify-between">
-        <span className="text-[11px] font-mono text-muted-foreground">{label}</span>
-        <span className="text-sm font-semibold">{value}</span>
+    <div className="flex items-center gap-2">
+      <Icon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+      <div className="min-w-0">
+        <div className="text-[10px] font-mono uppercase tracking-[0.12em] text-muted-foreground">{label}</div>
+        <div className="text-sm font-medium truncate">{value}</div>
       </div>
-      <div className="h-8 mt-1"><Sparkline points={series} color={color} /></div>
     </div>
   );
 }
