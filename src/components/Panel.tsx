@@ -53,7 +53,7 @@ export function RiskBadge({ level }: { level: "Green" | "Yellow" | "Orange" | "R
   } as const;
   return (
     <span className={cn("inline-flex items-center gap-1.5 px-2 py-0.5 text-[11px] font-mono rounded-sm border", map[level])}>
-      <span className="h-1.5 w-1.5 rounded-full bg-current pulse-dot" />
+      <span className="h-1.5 w-1.5 rounded-full bg-current" />
       {level.toUpperCase()}
     </span>
   );
